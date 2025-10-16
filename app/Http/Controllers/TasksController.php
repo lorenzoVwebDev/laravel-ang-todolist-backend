@@ -51,9 +51,49 @@ class TasksController extends Controller
           //array_slice just needs the amout of values to take from the array in the third parameter differently from js slice method that needs the ending index
           $tasksResponse = array_slice($userTasks, $taskStartingIndex, $pageSize);
 
-          return Response::json(['response' => $tasksResponse], 200);
+          return Response::json([
+            'tasks' => $tasksResponse,
+            'totalUserTasks' => count($userTasks)
+          ], 200);
         } catch (Exception $err) {
           return Response::noContent(500); 
         }
+    }
+
+    public function searchTask() {
+      $queryArray = $this->request->array();
+      ['_user_id' => $_user_id, 'keyword' => $keyword, 'page' => $page, 'limit' => $limit] = $queryArray;
+
+      if (!$_user_id || !$keyword || !$page || !$limit) return Response::json(['response' => 'missing-parameters'], 400);
+
+      try {
+      //query builder, we can chain methods to create query likely: "SELECT * FROM tasks WHERE name = 'lorenzo';
+      $user = UsersModel::get()->where('_id', $_user_id);
+      if (count($user) < 1) return Response::json(['respone' => 'user-not-found']);
+
+      $userTasks = TasksModel::get()->where('_user_id', $_user_id);
+      
+      if (count($user) < 1) return Response::json(['response' => 'no-tasks'], 204);
+      $filteredTasks = [];
+
+      for ($i = 0; $i <= (count($userTasks) - 1); $i++) {
+        if (str_contains(strtolower($userTasks[$i]->name), strtolower($keyword)) || str_contains(strtolower($userTasks[$i]->description), strtolower($keyword))) $filteredTasks[] = $userTasks[$i];
+      }
+
+      if (count($filteredTasks) < 1) return Response::json(['response'=>'no-filtered-task'], 204);
+
+      $pageIndex = (int)$page;
+      $pageSize = (int)$limit;
+
+      $taskStartingIndex = $pageIndex === 1 ? 0 : ($pageIndex - 1) * $pageSize;
+      $tasksResponse = array_slice($filteredTasks, $taskStartingIndex, $pageSize);
+
+      return Response::json([
+        'tasks' => $tasksResponse,
+        'totalUserTasks' => count($userTasks)
+      ], 200);
+      } catch (Exception $err) {
+        return Response::noContent(500);
+      }
     }
 }
