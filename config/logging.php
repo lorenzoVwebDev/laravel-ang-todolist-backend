@@ -57,7 +57,14 @@ return [
             'channels' => explode(',', (string) env('LOG_STACK', 'single')),
             'ignore_exceptions' => false,
         ],
-
+        'jwtExceptions' => [
+            'driver' => 'single',
+            'name' => 'jwtExceptions',
+            'path' => storage_path('logs/jwtExceptions.log'),
+            'level' => 'debug',
+            'replace_placeholders' => true,    
+        ]
+        ,
         'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),

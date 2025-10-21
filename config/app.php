@@ -122,5 +122,7 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
-
+    'accessTokenKey' => env('ACCESS_TOKEN', 'null'),
+    'refreshTokenKey' => env('REFRESH_TOKEN', 'null'),
+    'accessTokenHeader' => env('JWT_HEADER', 'null')
 ];

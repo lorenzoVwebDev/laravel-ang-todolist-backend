@@ -55,6 +55,7 @@ class TasksController extends Controller
             'tasks' => $tasksResponse,
             'totalUserTasks' => count($userTasks)
           ], 200);
+    
         } catch (Exception $err) {
           return Response::noContent(500); 
         }
@@ -71,7 +72,7 @@ class TasksController extends Controller
       $user = UsersModel::get()->where('_id', $_user_id);
       if (count($user) < 1) return Response::json(['respone' => 'user-not-found']);
 
-      $userTasks = TasksModel::get()->where('_user_id', $_user_id);
+      $userTasks = TasksModel::where('_user_id', $_user_id)->get();
       
       if (count($user) < 1) return Response::json(['response' => 'no-tasks'], 204);
       $filteredTasks = [];

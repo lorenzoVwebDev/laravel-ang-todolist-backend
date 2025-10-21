@@ -23,12 +23,12 @@ return [
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'],
+    'allowed_headers' => ['project-type','Content-type', env('AUTH_HEADER', 'jwt_headers')],
 
-    'exposed_headers' => [],
+    'exposed_headers' => ['project-type','Content-type', env('AUTH_HEADER', 'jwt_headers')],
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    'supports_credentials' => true,
 
 ];

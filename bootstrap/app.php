@@ -1,8 +1,11 @@
 <?php
 
 use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\Exceptions;
+use  Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Firebase\JWT\SignatureInvalidException;
+use Illuminate\Support\Facades\Log;
+use Psr\Log\LogLevel;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,7 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             '/*'
         ]);
+
+        $middleware->encryptCookies(except: [
+            'refreshToken',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+
     })->create();

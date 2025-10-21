@@ -4,9 +4,17 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TasksController;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
+use App\Http\Middleware\VerifyJwt;
+use App\Traits\JwtTrait;
+use Illuminate\Support\Facades\Response as ResponseFacade;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', function (Request $request) {
+/*     return view('welcome'); */
+})->middleware(VerifyJwt::class);
+
+Route::get('/refreshtoken', function (Request $request) {
+    $refreshToken = JwtTrait::signRefreshToken('lorenzo');
+    return ResponseFacade::json(['response' => "signed-cookie"], 200)->cookie('refreshToken', $refreshToken, time() + 86400, '/', '', false, false, false, 'Lax');
 });
 
 Route::match(['get', 'post', 'delete', 'put'], '/tasks/{id?}', function (Application $app, Request $request) {

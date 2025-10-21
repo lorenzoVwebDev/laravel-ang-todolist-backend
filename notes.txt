@@ -1,1 +1,3 @@
-Continue from TasksController searchTask()
+Continue from exception handling and logging in the taskmodel controller
+https://laravel.com/docs/12.x/errors
+https://laravel.com/docs/12.x/logging
