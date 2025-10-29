@@ -11,5 +11,5 @@ class TasksModel extends Model
     use HasFactory;
 
     protected $table = 'tasks';
-    
+    public $timestamps = false;
 }

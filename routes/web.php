@@ -3,29 +3,35 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TasksController;
 use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
 use App\Http\Middleware\VerifyJwt;
 use App\Traits\JwtTrait;
 use Illuminate\Support\Facades\Response as ResponseFacade;
+use App\Models\TasksModel;
+use Illuminate\Database\Eloquent\Factories\Sequence;
+use App\Http\Controllers\AuthenticationController;
+
 
 Route::get('/', function (Request $request) {
-/*     return view('welcome'); */
-})->middleware(VerifyJwt::class);
+return 'hello';
+});
 
 Route::get('/refreshtoken', function (Request $request) {
     $refreshToken = JwtTrait::signRefreshToken('lorenzo');
     return ResponseFacade::json(['response' => "signed-cookie"], 200)->cookie('refreshToken', $refreshToken, time() + 86400, '/', '', false, false, false, 'Lax');
 });
 
-Route::match(['get', 'post', 'delete', 'put'], '/tasks/{id?}', function (Application $app, Request $request) {
+Route::match(['get', 'post', 'delete', 'put'], '/tasks/{id?}', function (Application $app, Request $request, ?string $id = null) {
     $pathArray = explode('/',$request->path());
-    
+
     if (count($pathArray) === 2 && ($pathArray[1] === 'searchtasks' || $pathArray[1] === 'filtertasks')) {
         $tasksController = $app->make(TasksController::class);
 
         switch ($request->method()) {
           case "GET": {
-            return $tasksController->searchTask();
+            if ($pathArray[1] === 'searchtasks') return $tasksController->searchTask();
+            if ($pathArray[1] === 'filtertasks') return $tasksController->filterTask();
           }
           default: {
             return abort(403);
@@ -38,16 +44,56 @@ Route::match(['get', 'post', 'delete', 'put'], '/tasks/{id?}', function (Applica
             switch ($request->method()) {
                 case "GET": {
                     return $tasksController->getTask();
+                    break;
                 }
-                
+                case "POST": {
+                    return $tasksController->postTask();
+                    break;
+                }
+                case "PUT": {
+                    return $tasksController->updateTask();
+                    break;
+                }
+                default: {
+                    return abort(400);
+                }
             }
         } else if (preg_match('/^\d+$/', $pathArray[1])) {
-
+            switch ($request->method()) {
+                case "DELETE": {
+                    return $tasksController->deleteTask($id);
+                    break;
+                }
+                default: {
+                    return abort(400);
+                }
+            }
         } else {
-            //return the default resources/views/errors/404.blade.php 
+
+            if (!preg_match('/^\d+$/', $pathArray[1])) return Response::json(["response" => "invalid-request"]);
+            //return the default resources/views/errors/404.blade.php
             return abort(404);
         }
     } else {
         return abort(404);
     }
+})->middleware(VerifyJwt::class);
+
+Route::prefix("authentication")->group(function () {
+
+    Route::get('/signup', function (Application $app, AuthenticationController $authController) {
+        return $authController->testMethod();
+    });
+
+    Route::get('/signin', function (Application $app, AuthenticationController $authController) {
+        return $authController->testMethod();
+    });
+
+    Route::delete('/logout', function (Application $app, AuthenticationController $authController) {
+        return $authController->testMethod();
+    });
+
+    Route::put("/changepwr", function (Application $app, AuthenticationController $authController) {
+        return $authController->testMethod();
+    });
 });

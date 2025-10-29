@@ -1,3 +1,2 @@
-Continue from exception handling and logging in the taskmodel controller
-https://laravel.com/docs/12.x/errors
-https://laravel.com/docs/12.x/logging
+continue from studying SFTP: https://supporthost.com/it/sftp/
+and laravel file storage: https://laravel.com/docs/12.x/filesystem

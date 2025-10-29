@@ -13,17 +13,14 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Support\Facades\Log;
 
 class VerifyJwt/*  extends EncryptCookies */ {
-/*     protected $except = [
-        // Add your cookie names here
-        'refreshToken',
-    ]; */
+
     /**
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
-    {   
+    {
         $accessToken = $request->header(Config::get('app.accessTokenHeader'));
         $refreshToken = $request->cookie('refreshToken');
 
@@ -42,7 +39,7 @@ class VerifyJwt/*  extends EncryptCookies */ {
             $user = $result->userInfo->username;
             $request->setUserResolver(function () use ($user) {
               return $user;
-            }); 
+            });
             return $next($request);
           } else {
             try {
@@ -55,9 +52,9 @@ class VerifyJwt/*  extends EncryptCookies */ {
               $accessToken = JwtTrait::signAccessToken($userArray['username'],$userArray['_id'], json_decode($userArray['roles'], true));
               if (!$accessToken) return ResponseFacade::noContent(500);
               return ResponseFacade::noContent(201, [
-                Config::get('app.accessTokenHeader') => $accessToken 
+                Config::get('app.accessTokenHeader') => $accessToken
               ]);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
               Log::error($e->getMessage());
               return ResponseFacade::noContent(500);
             }
@@ -73,9 +70,9 @@ class VerifyJwt/*  extends EncryptCookies */ {
             $accessToken = JwtTrait::signAccessToken($userArray['username'],$userArray['_id'], json_decode($userArray['roles'], true));
             if (!$accessToken) return ResponseFacade::noContent(500);
             return ResponseFacade::noContent(201, [
-              Config::get('app.accessTokenHeader') => $accessToken 
+              Config::get('app.accessTokenHeader') => $accessToken
             ]);
-          } catch (Exception $e) {
+          } catch (\Exception $e) {
             Log::error($e->getMessage());
             return ResponseFacade::noContent(500);
           }
