@@ -93,8 +93,8 @@ class TasksController extends Controller {
         'tasks' => $tasksResponse,
         'totalUserTasks' => count($userTasks)
       ], 200);
-      } catch (\Exception $err) {
-        Log::error($e->getMessage());
+      } catch (\Exception $e) {
+        Log::error($e->getMessage()." | line ".$e->getLine()." | errorCode ".$e->getCode());
         return Response::noContent(500);
       }
     }
@@ -199,7 +199,7 @@ class TasksController extends Controller {
                 'totalFilteredTasks' => count($filteredTasks)
             ], 200);
         } catch (\ErrorException $e) {
-            Log::error($e->getMessage());
+            Log::error($e->getMessage()." | line ".$e->getLine()." | errorCode ".$e->getCode());
             return Response::noContent(500);
         }
     }
@@ -231,7 +231,7 @@ class TasksController extends Controller {
 
             return Response::json(["response" => "task-added"], 200);
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
+            Log::error($e->getMessage()." | line ".$e->getLine()." | errorCode ".$e->getCode());
             return Response::noContent(500);
         }
     }
@@ -246,7 +246,7 @@ class TasksController extends Controller {
 
             return Response::json(["response" => "task-deleted", 200]);
         } catch (\Exception $e) {
-          Log::error($e->getMessage());
+          Log::error($e->getMessage()." | line ".$e->getLine()." | errorCode ".$e->getCode());
           return Response::noContent(500);
         }
     }
@@ -286,7 +286,7 @@ class TasksController extends Controller {
 
             return Response::json(["response" => "task-updated"], 200);
         } catch (\Exception $e) {
-            Log::error($e->getMessage());
+            Log::error($e->getMessage()." | line ".$e->getLine()." | errorCode ".$e->getCode());
             return Response::noContent(500);
         }
     }

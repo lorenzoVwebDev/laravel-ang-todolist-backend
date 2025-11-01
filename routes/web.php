@@ -5,11 +5,14 @@ use App\Http\Controllers\TasksController;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\App;
 use Illuminate\Http\Request;
-use App\Http\Middleware\VerifyJwt;
-use App\Traits\JwtTrait;
 use Illuminate\Support\Facades\Response as ResponseFacade;
+//Middlewares
+use App\Http\Middleware\VerifyJwt;
+use App\Http\Middleware\AvatarCreator;
+use App\Traits\JwtTrait;
 use App\Models\TasksModel;
 use Illuminate\Database\Eloquent\Factories\Sequence;
+//controllers
 use App\Http\Controllers\AuthenticationController;
 
 
@@ -81,19 +84,20 @@ Route::match(['get', 'post', 'delete', 'put'], '/tasks/{id?}', function (Applica
 
 Route::prefix("authentication")->group(function () {
 
-    Route::get('/signup', function (Application $app, AuthenticationController $authController) {
-        return $authController->testMethod();
-    });
+    Route::post('/signup', function (Application $app, AuthenticationController $authController) {
 
-    Route::get('/signin', function (Application $app, AuthenticationController $authController) {
-        return $authController->testMethod();
+        return $authController->signUp();
+    })->middleware(AvatarCreator::class);
+
+    Route::post('/signin', function (Application $app, AuthenticationController $authController) {
+        return $authController->signIn();
     });
 
     Route::delete('/logout', function (Application $app, AuthenticationController $authController) {
-        return $authController->testMethod();
+/*         return $authController->testMethod(); */
     });
 
     Route::put("/changepwr", function (Application $app, AuthenticationController $authController) {
-        return $authController->testMethod();
+/*         return $authController->testMethod(); */
     });
 });

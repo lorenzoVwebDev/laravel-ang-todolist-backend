@@ -23,13 +23,15 @@ class VerifyJwt/*  extends EncryptCookies */ {
     {
         $accessToken = $request->header(Config::get('app.accessTokenHeader'));
         $refreshToken = $request->cookie('refreshToken');
-
+        print $refreshToken;
         if (!$refreshToken) return ResponseFacade::json(['response' => 'jwt-unauthorized'], 401);
         if (!$accessToken && !$refreshToken) return ResponseFacade::json(['response' => 'jwt-unauthorized'], 401);
         $accessTokenArray = explode(' ', $accessToken);
         if (explode(' ', $accessToken)[0] === 'Bearer') {
           $result = JwtTrait::verifyAccessToken($accessTokenArray[1]);
           if ($result) {
+            $userModel = UsersModel::where("username", $result->userInfo->username)->get();
+            if (count($userModel) < 1) return ResponseFacade::json(["response" => "user-not-found"], 401);
             //Defining request roles and username
             $request->merge([
               'user' => $result->userInfo->username,
