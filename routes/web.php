@@ -94,10 +94,10 @@ Route::prefix("authentication")->group(function () {
     });
 
     Route::delete('/logout', function (Application $app, AuthenticationController $authController) {
-/*         return $authController->testMethod(); */
-    });
+        return $authController->logOut();
+    })->middleware(VerifyJwt::class);
 
-    Route::put("/changepwr", function (Application $app, AuthenticationController $authController) {
-/*         return $authController->testMethod(); */
+    Route::post("/changepwr", function (Application $app, AuthenticationController $authController) {
+        return $authController->changePwd();
     });
 });

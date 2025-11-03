@@ -23,7 +23,7 @@ class VerifyJwt/*  extends EncryptCookies */ {
     {
         $accessToken = $request->header(Config::get('app.accessTokenHeader'));
         $refreshToken = $request->cookie('refreshToken');
-        print $refreshToken;
+
         if (!$refreshToken) return ResponseFacade::json(['response' => 'jwt-unauthorized'], 401);
         if (!$accessToken && !$refreshToken) return ResponseFacade::json(['response' => 'jwt-unauthorized'], 401);
         $accessTokenArray = explode(' ', $accessToken);
@@ -47,8 +47,8 @@ class VerifyJwt/*  extends EncryptCookies */ {
             try {
               if (!isset($refreshToken)) return ResponseFacade::json(['response' => 'jwt-unauthorized'], 401);
               $user = UsersModel::get()->where('refreshToken', $refreshToken);
-              if (!isset($user->toArray()[0]['username'])) return ResponseFacade::json(['response' => 'jwt-not-found'], 403);
-              $userArray = $user->toArray()[0];
+              if (!isset($user[0]['username'])) return ResponseFacade::json(['response' => 'jwt-not-found'], 403);
+              $userArray = $user[0];
               $result = JwtTrait::verifyRefreshToken($refreshToken);
               if (!$result || ($result->username != $userArray['username'])) return ResponseFacade::json(['response' => 'jwt-unauthorized'], 403);
               $accessToken = JwtTrait::signAccessToken($userArray['username'],$userArray['_id'], json_decode($userArray['roles'], true));
@@ -64,9 +64,9 @@ class VerifyJwt/*  extends EncryptCookies */ {
         } else {
           try {
             if (!isset($refreshToken)) return ResponseFacade::json(['response' => 'jwt-unauthorized'], 401);
-            $user = UsersModel::get()->where('refreshToken', $refreshToken);
-            if (!isset($user->toArray()[0]['username'])) return ResponseFacade::json(['response' => 'jwt-not-found'], 403);
-            $userArray = $user->toArray()[0];
+            $user = UsersModel::where("refreshToken", $refreshToken)->get();
+            if (!isset($user[0]['username'])) return ResponseFacade::json(['response' => 'jwt-not-found'], 403);
+            $userArray = $user[0];
             $result = JwtTrait::verifyRefreshToken($refreshToken);
             if (!$result || ($result->username != $userArray['username'])) return ResponseFacade::json(['response' => 'jwt-unauthorized'], 403);
             $accessToken = JwtTrait::signAccessToken($userArray['username'],$userArray['_id'], json_decode($userArray['roles'], true));

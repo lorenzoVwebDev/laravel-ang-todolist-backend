@@ -31,7 +31,7 @@ trait JwtTrait {
   public static function signRefreshToken(string $username) {
 
       $payload = [
-      'username' => $username,  
+      'username' => $username,
       'exp' => time() + 86400
       ];
 
@@ -47,7 +47,8 @@ trait JwtTrait {
     } catch (SignatureInvalidException $e) {
       Log::channel('jwtExceptions')->info($e->getMessage());
       return null;
-    } catch (ExpiredException $e) {
+    } catch (\Exception $e) {
+      Log::channel('jwtExceptions')->info($e->getMessage());
       return null;
     }
   }
@@ -58,7 +59,8 @@ trait JwtTrait {
     } catch (SignatureInvalidException $e) {
       Log::channel('jwtExceptions')->info($e->getMessage());
       return null;
-    } catch (ExpiredException $e) {
+    } catch (\Exception $e) {
+      Log::channel('jwtExceptions')->info($e->getMessage());
       return null;
     }
   }

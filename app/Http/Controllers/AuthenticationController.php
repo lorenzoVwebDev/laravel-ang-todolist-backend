@@ -129,4 +129,74 @@ class AuthenticationController extends Controller
             return Response::noContent(500);
         }
     }
+
+    public function logOut() {
+        $refreshToken = $this->request->cookie("refreshToken");
+
+        if (@!$refreshToken) return Response::noContent(204);
+
+        try {
+            $user = UsersModel::where("refreshToken", $refreshToken)->get();
+
+            if (count($user) < 1) return Response::json(["response" => "log-out"], 200);
+
+            UsersModel::where("refreshToken", $refreshToken)->update(["refreshToken" => null]);
+
+            return Response::json(["response" => "log-out"], 200);
+        } catch (\Exception $e) {
+            Log::error($e->getMessage()." | line ".$e->getLine()." | errorCode ".$e->getCode());
+            return Response::noContent(500);
+        }
+    }
+
+    public function changePwd() {
+        @["username" => $username, "oldPassword" => $oldPassword, "newPassword" => $newPassword] = $this->request->all();
+
+        if (@!$username || @!$oldPassword || @!$newPassword) return Response::json(["response" => "missing-credentials"], 401);
+
+        $username = strip_tags($username);
+        $oldPassword = strip_tags($oldPassword);
+        $newPassword = strip_tags($newPassword);
+        try {
+        $user = UsersModel::where("username", $username)->orWhere("email", $username)->get();
+
+        if (count($user) < 1) return Response::json(["response" => "not-found"], 401);
+
+        $match = password_verify($oldPassword, $user[0]["password"]);
+
+        if ($match) {
+            $oldPasswords = json_decode($user[0]["oldPasswords"]);
+            $result = false;
+            for ($i = 0; $i < count($oldPasswords); $i++) {
+               $result = password_verify($newPassword, $oldPasswords[$i]);
+
+               if ($result) break;
+            }
+
+            if ($result) return Response::json(["response" => "equal-to-old-password"], 401);
+
+            if (!(preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()])[A-Za-z\d!@#$%^&*()]{8,}$/", $newPassword))) return Response::json(["response" => "invalid-password"], 400);
+
+            $password = password_hash($newPassword, PASSWORD_BCRYPT, ["cost" => 10]);
+            $oldPasswords[] = $password;
+            $oldPasswords = json_encode($oldPasswords);
+            $dateStamp = strtotime("+1 month");
+            $attempts = 0;
+
+            UsersModel::where("username", $username)->orWhere("email", $username)->update([
+                "password" => $password,
+                "oldPasswords" => $oldPasswords,
+                "dateStamp" => $dateStamp,
+                "attempts" => $attempts
+            ]);
+
+            return Response::json(["response" => "updated-password"]);
+        } else {
+            return Response::json(["response" => "wrong-password"]);
+        }
+        } catch (\Exception $e) {
+            Log::error($e->getMessage()." | line ".$e->getLine()." | errorCode ".$e->getCode());
+            return Response::noContent(500);
+        }
+    }
 }
