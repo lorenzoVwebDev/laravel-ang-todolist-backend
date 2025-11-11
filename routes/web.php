@@ -15,17 +15,23 @@ use Illuminate\Database\Eloquent\Factories\Sequence;
 //controllers
 use App\Http\Controllers\AuthenticationController;
 
-
-Route::get('/', function (Request $request) {
-return 'hello';
-});
+/* Route::get("/", function () {
+    return "hello";
+}); */
+/* Route::get("/factories", function () {
+   TasksModel::factory()->count(10)->create();
+}); */
 
 Route::get('/refreshtoken', function (Request $request) {
+})->middleware(VerifyJwt::class);
+
+/* Route::get('/refreshtoken', function (Request $request) {
     $refreshToken = JwtTrait::signRefreshToken('lorenzo');
     return ResponseFacade::json(['response' => "signed-cookie"], 200)->cookie('refreshToken', $refreshToken, time() + 86400, '/', '', false, false, false, 'Lax');
 });
-
+ */
 Route::match(['get', 'post', 'delete', 'put'], '/tasks/{id?}', function (Application $app, Request $request, ?string $id = null) {
+
     $pathArray = explode('/',$request->path());
 
     if (count($pathArray) === 2 && ($pathArray[1] === 'searchtasks' || $pathArray[1] === 'filtertasks')) {
@@ -46,6 +52,7 @@ Route::match(['get', 'post', 'delete', 'put'], '/tasks/{id?}', function (Applica
         if (count($pathArray) === 1) {
             switch ($request->method()) {
                 case "GET": {
+
                     return $tasksController->getTask();
                     break;
                 }

@@ -199,4 +199,5 @@ class AuthenticationController extends Controller
             return Response::noContent(500);
         }
     }
+
 }

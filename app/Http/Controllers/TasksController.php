@@ -18,8 +18,7 @@ class TasksController extends Controller {
         $queryParam = $this->request->array();
         //associative array destructuring
         @['_user_id' => $_user_id, 'page' => $page, 'limit' => $limit] = $queryParam;
-
-        if (!$_user_id || !$page || !$limit) return response()->json(['response' => 'missing-parameters'], 400);
+        if (!$_user_id || (!$page && $page != 0) || !$limit) return response()->json(['response' => 'missing-parameters'], 400);
 
         try {
           $allTasks = TasksModel::get();
@@ -65,7 +64,7 @@ class TasksController extends Controller {
       $queryArray = $this->request->array();
       @['_user_id' => $_user_id, 'keyword' => $keyword, 'page' => $page, 'limit' => $limit] = $queryArray;
 
-      if (!$_user_id || !$keyword || !$page || !$limit) return Response::json(['response' => 'missing-parameters'], 400);
+      if (!$_user_id || !$keyword || (!$page && $page != 0) || !$limit) return Response::json(['response' => 'missing-parameters'], 400);
 
       try {
       //query builder, we can chain methods to create query likely: "SELECT * FROM tasks WHERE name = 'lorenzo';
@@ -90,8 +89,8 @@ class TasksController extends Controller {
       $tasksResponse = array_slice($filteredTasks, $taskStartingIndex, $pageSize);
 
       return Response::json([
-        'tasks' => $tasksResponse,
-        'totalUserTasks' => count($userTasks)
+        'filteredTasks' => $tasksResponse,
+        'totalFilteredTasks' => count($userTasks)
       ], 200);
       } catch (\Exception $e) {
         Log::error($e->getMessage()." | line ".$e->getLine()." | errorCode ".$e->getCode());
@@ -104,7 +103,7 @@ class TasksController extends Controller {
         //associative array destructuring
         @['_user_id' => $_user_id, 'addedBefore' => $addedBefore, 'addedAfter' => $addedAfter, 'taskSubject' => $taskSubject, 'taskDone' => $taskDone, 'page' => $page, 'limit' => $limit,] = $queryParam;
 
-        if (!isset($_user_id) || !isset($page) || !isset($limit)) return Response::json(['response' => 'missing-parameters'], 400);
+        if (@!$_user_id || (@!$page && @$page != 0) || @!$limit) return Response::json(['response' => 'missing-parameters'], 400);
         if (isset($addedBefore)) {
             list($date, $useless) = explode(' GMT', $addedBefore);
             $addedBefore = strtotime($date);

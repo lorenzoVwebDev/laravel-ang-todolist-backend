@@ -27,7 +27,7 @@ class VerifyJwt/*  extends EncryptCookies */ {
         if (!$refreshToken) return ResponseFacade::json(['response' => 'jwt-unauthorized'], 401);
         if (!$accessToken && !$refreshToken) return ResponseFacade::json(['response' => 'jwt-unauthorized'], 401);
         $accessTokenArray = explode(' ', $accessToken);
-        if (explode(' ', $accessToken)[0] === 'Bearer') {
+        if (explode(' ', $accessToken)[0] === 'Bearer' && @$accessTokenArray[1]) {
           $result = JwtTrait::verifyAccessToken($accessTokenArray[1]);
           if ($result) {
             $userModel = UsersModel::where("username", $result->userInfo->username)->get();

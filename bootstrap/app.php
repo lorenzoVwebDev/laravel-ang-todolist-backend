@@ -28,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-    $exceptions->report(function (ErrorException $e) {
+/*     $exceptions->report(function (ErrorException $e) {
         Response::json('works');
-    })->stop();
+    })->stop(); */
     })->create();
